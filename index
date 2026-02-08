@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechTic | Employee Portal Access</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- VISUAL THEME: MATCHING PROVIDED REFERENCE --- */
+        :root { 
+            --bg-deep: #0a0a12;
+            --bg-surface: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #e94560;
+            --accent-glow: rgba(233, 69, 96, 0.3);
+            --ai-primary: #00d2ff;
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --radius-lg: 24px;
+            --radius-md: 12px;
+        } 
+
+        * { box-sizing: border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); } 
+
+        body { 
+            margin: 0; 
+            min-height: 100vh; 
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(233, 69, 96, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.05) 0%, transparent 20%);
+            font-family: 'Cairo', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centered vertically for login */
+            padding: 20px;
+        } 
+
+        .terminal-wrapper { 
+            width: 100%;
+            max-width: 600px; /* Narrower for login card */
+            animation: slideUp 0.6s ease-out;
+        } 
+
+        .brand-header { text-align: center; margin-bottom: 40px; }
+        .brand-logo { height: 60px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.1)); }
+
+        /* --- Login Module (Styled like Search Module) --- */
+        .login-module { 
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .header-content h1 { font-size: 28px; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+        .header-content p { color: var(--text-dim); margin: 10px 0 30px; font-size: 15px; }
+
+        .form-group { margin-bottom: 25px; }
+
+        label {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--ai-primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 5px 10px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+        }
+
+        .input-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        input::placeholder { color: rgba(255,255,255,0.15); font-family: 'Cairo', sans-serif;}
+
+        .btn-primary {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--accent-glow); }
+        .btn-secondary {
+            background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+            margin-top: 15px;
+        }
+        .btn-secondary:hover { color: white; border-color: white; transform: none; box-shadow: none; }
+
+        /* --- Utilities --- */
+        #toast {
+            position: fixed; bottom: 30px; 
+            background: var(--accent); color: white;
+            padding: 16px 30px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(200%);
+            z-index: 9999;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+        #toast.show { transform: translateY(0); }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .otp-display {
+            font-size: 24px; text-align: center; letter-spacing: 10px;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        footer {
+            margin-top: 30px; 
+            text-align: center;
+            font-size: 11px; 
+            color: rgba(255,255,255,0.2); 
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Error Message</div>
+
+    <div class="terminal-wrapper">
+        <header class="brand-header">
+            <img src="https://techticsa.com/cdn-cgi/image/format=auto,quality=90/wp-content/uploads/2024/03/6c93368d-2048x617.png" alt="TechTic" class="brand-logo">
+        </header>
+
+        <section id="stepEmail" class="login-module">
+            <div class="header-content">
+                <h1>Employee Portal</h1>
+                <p>Internal access to the Certificate Attempt Log System.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Corporate Credential</label>
+                <div class="input-container">
+                    <input type="email" id="emailInput" placeholder="username@techticsa.com" autocomplete="off">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleEmailSubmit()">
+                <span id="btnLabel1">Verify Credential</span>
+                <div id="loader1" class="spinner"></div>
+            </button>
+        </section>
+
+        <section id="stepOtp" class="login-module" style="display: none;">
+            <div class="header-content">
+                <h1>Security Check</h1>
+                <p>Enter the session token sent to: <span id="displayEmail" style="color:var(--ai-primary)"></span></p>
+            </div>
+            
+            <div class="form-group">
+                <label>2FA Token</label>
+                <div class="input-container">
+                    <input type="text" id="otpInput" class="otp-display" maxlength="6" placeholder="******" autocomplete="off">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleOtpSubmit()">
+                <span id="btnLabel2">Authenticate Session</span>
+                <div id="loader2" class="spinner"></div>
+            </button>
+            
+            <button class="btn-primary btn-secondary" onclick="resetForm()">Cancel</button>
+        </section>
+
+        <footer>
+            SECURE VERIFICATION TERMINAL • V.2.4<br>
+            AUTHORIZED PERSONNEL ONLY
+        </footer>
+    </div>
+
+    <script>
+        const ui = {
+            stepEmail: document.getElementById('stepEmail'),
+            stepOtp: document.getElementById('stepOtp'),
+            emailInput: document.getElementById('emailInput'),
+            otpInput: document.getElementById('otpInput'),
+            displayEmail: document.getElementById('displayEmail'),
+            toast: document.getElementById('toast'),
+            
+            // Buttons & Loaders
+            btnLabel1: document.getElementById('btnLabel1'),
+            loader1: document.getElementById('loader1'),
+            btnLabel2: document.getElementById('btnLabel2'),
+            loader2: document.getElementById('loader2')
+        };
+
+        function showToast(msg) {
+            ui.toast.innerText = "⚠ " + msg;
+            ui.toast.classList.add('show');
+            setTimeout(() => ui.toast.classList.remove('show'), 3000);
+        }
+
+        function setLoading(step, isLoading) {
+            if (step === 1) {
+                ui.btnLabel1.style.display = isLoading ? 'none' : 'block';
+                ui.loader1.style.display = isLoading ? 'block' : 'none';
+            } else {
+                ui.btnLabel2.style.display = isLoading ? 'none' : 'block';
+                ui.loader2.style.display = isLoading ? 'block' : 'none';
+            }
+        }
+
+        function handleEmailSubmit() {
+            const email = ui.emailInput.value.trim().toLowerCase();
+
+            // Validation Logic
+            if (!email) {
+                showToast("Email field cannot be empty");
+                return;
+            }
+            if (!email.endsWith('@techticsa.com')) {
+                showToast("Access Restricted: @techticsa.com only");
+                return;
+            }
+
+            setLoading(1, true);
+
+            // Simulate Network Request
+            setTimeout(() => {
+                setLoading(1, false);
+                ui.displayEmail.innerText = email;
+                switchView('stepOtp');
+                ui.otpInput.focus();
+            }, 1000);
+        }
+
+        function handleOtpSubmit() {
+            const otp = ui.otpInput.value.trim();
+
+            if (otp !== "123456") {
+                showToast("Invalid Token. Try 123456");
+                return;
+            }
+
+            setLoading(2, true);
+
+            setTimeout(() => {
+                // Success - Redirect to the Attempt Log System (The Dashboard)
+                window.location.href = "https://techticsa.github.io/logs/";
+            }, 1500);
+        }
+
+        function switchView(viewId) {
+            ui.stepEmail.style.display = 'none';
+            ui.stepOtp.style.display = 'none';
+            
+            const el = document.getElementById(viewId);
+            el.style.display = 'block';
+            el.classList.add('fade-in');
+        }
+
+        function resetForm() {
+            ui.otpInput.value = '';
+            switchView('stepEmail');
+        }
+
+        // Enter Key Support
+        ui.emailInput.addEventListener("keypress", (e) => { if(e.key === "Enter") handleEmailSubmit(); });
+        ui.otpInput.addEventListener("keypress", (e) => { if(e.key === "Enter") handleOtpSubmit(); });
+
+    </script>
+</body>
+</html>
